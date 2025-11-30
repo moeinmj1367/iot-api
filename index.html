@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Simple IoT Panel</title>
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    .box { padding: 20px; border: 1px solid #ccc; width: 200px; }
+    button {
+      width: 100%;
+      padding: 15px;
+      font-size: 16px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="box">
+    <h3>Temperature:</h3>
+    <h1 id="temp">--</h1>
+
+    <button id="d6btn">D6 (Hold)</button>
+  </div>
+
+<script>
+const API = "https://iot-api-qr2g.onrender.com";
+
+// --- Read temperature every 1 sec ---
+function fetchState() {
+  fetch(API + "/state")
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById("temp").innerText = data.temperature;
+    })
+    .catch(e => console.log(e));
+}
+setInterval(fetchState, 1000);
+
+
+// --- D6 button (momentary) ---
+const d6btn = document.getElementById("d6btn");
+
+d6btn.onmousedown = () => sendD6(1);
+d6btn.onmouseup   = () => sendD6(0);
+d6btn.onmouseleave = () => sendD6(0);
+
+function sendD6(val) {
+  fetch(API + "/d6_POST", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ state: val })
+  });
+}
+</script>
+
+</body>
+</html>
